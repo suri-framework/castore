@@ -1,4 +1,4 @@
-let certificate_pem =
+let pem =
   {|##
 ## Bundle of CA Root Certificates
 ##
@@ -3533,31 +3533,3 @@ dVwPaFsdZcJfMw8eD/A7hvWwTruc9+olBdytoptLFwG+Qt81IR2tq670v64fG9PiO/yzcnMcmyiQ
 iRM9HcEARwmWmjgb3bHPDcK0RPOWlc4yOo80nOAXx17Org3bhzjlP1v9mxnhMUF6cKojawHhRUzN
 lM47ni3niAIi9G7oyOzWPPO5std3eqx7
 -----END CERTIFICATE-----|}
-
-let join_pem_to_single_crt pem_data =
-  let d = "-----" in
-  let new_cert = d ^ "BEGIN CERTIFICATE" ^ d
-  and end_of_cert = d ^ "END CERTIFICATE" ^ d in
-  let len_new = String.length new_cert
-  and len_end = String.length end_of_cert in
-  let lines = String.split_on_char '\n' pem_data in
-  let _, crt_strings =
-    List.fold_left
-      (fun (acc, crt_list) line ->
-        match acc with
-        | None
-          when String.length line >= len_new
-               && String.sub line 0 len_new = new_cert ->
-            (Some [ line ], crt_list)
-        | None -> (None, crt_list)
-        | Some lines
-          when String.length line >= len_end
-               && String.sub line 0 len_end = end_of_cert ->
-            let cert_data = String.concat "\n" (List.rev (line :: lines)) in
-            (None, cert_data :: crt_list)
-        | Some lines -> (Some (line :: lines), crt_list))
-      (None, []) lines
-  in
-  String.concat "\n" (List.rev crt_strings)
-
-let certificate = `Ca_contents (join_pem_to_single_crt certificate_pem)
