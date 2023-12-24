@@ -17,9 +17,9 @@ opam install castore
 opam pin castore git+https://github.com/leostera/castore
 ```
 
-Now we can add it to your project dependencies:
+Now we can add it to your dune project dependencies:
 
-```
+```ocaml
 (package
  ;...
  (depends
@@ -27,6 +27,10 @@ Now we can add it to your project dependencies:
    ...)
  ...)
 ```
+
+And to your dune stanzas:
+
+```ocaml
 (executable
   (name my_app)
   (libraries castore))
