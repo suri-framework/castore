@@ -1,0 +1,3 @@
+(library
+  (public_name castore)
+  (name ca_store))
