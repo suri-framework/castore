@@ -45,4 +45,4 @@ let authenticator = make_auth Ca_store.pem in
 
 For an example of how to use this, check out the [Blink.Transport.Ssl.Auth][blink_ssl] module.
 
-[blink_ssl]:https://github.com/leostera/blink/blob/main/blink/ssl.ml#L89-L136
+[blink_ssl]: https://github.com/leostera/blink/blob/main/blink/ssl.ml#L154-L201
