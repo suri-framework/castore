@@ -1,3 +1,6 @@
+(mdx
+ (libraries x509 castore))
+
 (library
  (public_name castore)
  (modules ca_store pem cas)
@@ -7,3 +10,8 @@
  (name regen)
  (modules regen)
  (libraries ca-certs x509 cstruct ptime ptime.clock.os))
+
+(test
+ (name decode_test)
+ (modules decode_test)
+ (libraries castore cstruct x509))

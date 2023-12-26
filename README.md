@@ -19,38 +19,42 @@ opam pin castore git+https://github.com/leostera/castore
 
 Now we can add it to your dune project dependencies:
 
-```ocaml
+```
 (package
  ;...
  (depends
-   (castore (>= "0.0.0")
-   ...)
- ...)
+   (castore (>= "0.0.0"))
+   ;...)
+ ;...)
 ```
 
 And to your dune stanzas:
 
-```ocaml
+```
 (executable
   (name my_app)
   (libraries castore))
 ```
 
 And finally we can use it by decoding the certificates, and building a chain of
-trust we can build our Tls config with:
+trust we can build our Tls config with.
 
+Here's an example of how to do it:
+
+<!-- $MDX file=decode_test.ml,part=main -->
 ```ocaml
-let decode ca = 
-    let cs = Cstruct.of_string ca in
-    X509.Authenticator.decode_pem cs
-    |> Result.get_ok
+let decode_pem ca =
+  let ca = Cstruct.of_string ca in
+  let cert = X509.Certificate.decode_pem ca in
+  Result.get_ok cert
 in
-let cas = List.map X509.Authenticator.decode_pem Ca_store.cas in
+let cas = List.map decode_pem Ca_store.cas in
 let authenticator = X509.Authenticator.chain_of_trust ~time cas in
-let tls_config = Tls.Config.client ~authenticator () in
 (* ... *)
 ```
 
-For an example of how to use this, check out the [Blink.Transport.Ssl.Auth][blink_ssl] module.
+## Acknowledgements
 
-[blink_ssl]: https://github.com/leostera/blink/blob/main/blink/ssl.ml#L154-L201
+This project would not be possible without `ocaml-tls` and `ca-certs`, in fact,
+we use `ca-certs` to generate the `Ca_store.cas` with code taken from the
+implementation of `ca-certs`.
