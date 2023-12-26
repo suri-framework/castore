@@ -36,10 +36,18 @@ And to your dune stanzas:
   (libraries castore))
 ```
 
-And finally we can use it when creating your applications TLs config:
+And finally we can use it by decoding the certificates, and building a chain of
+trust we can build our Tls config with:
 
 ```ocaml
-let authenticator = make_auth Ca_store.pem in
+let decode ca = 
+    let cs = Cstruct.of_string ca in
+    X509.Authenticator.decode_pem cs
+    |> Result.get_ok
+in
+let cas = List.map X509.Authenticator.decode_pem Ca_store.cas in
+let authenticator = X509.Authenticator.chain_of_trust ~time cas in
+let tls_config = Tls.Config.client ~authenticator () in
 (* ... *)
 ```
 

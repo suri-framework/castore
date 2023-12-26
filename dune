@@ -1,3 +1,9 @@
 (library
-  (public_name castore)
-  (name ca_store))
+ (public_name castore)
+ (modules ca_store pem cas)
+ (name ca_store))
+
+(executable
+ (name regen)
+ (modules regen)
+ (libraries ca-certs x509 cstruct ptime ptime.clock.os))
