@@ -5,7 +5,7 @@ let decode_pem ca =
   let cert = X509.Certificate.decode_pem ca in
   Result.get_ok cert
 in
-let cas = List.map decode_pem Ca_store.cas in
+let cas = List.map decode_pem Ca_store.certificates in
 let authenticator = X509.Authenticator.chain_of_trust ~time cas in
 (* ... *)
 (* $MDX part-end *)

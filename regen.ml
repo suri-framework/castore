@@ -84,10 +84,10 @@ let generate_cas pem =
   let cas =
     String.concat ";\n" (List.map (fun ca -> Format.asprintf "{|%s|}" ca) cas)
   in
-  let file = Format.sprintf "let cas = [\n%s\n] " cas in
+  let file = Format.sprintf "let certificates = [\n%s\n] " cas in
   let oc = open_out "cas.ml" in
   Out_channel.output_string oc file;
-  Printf.printf "🔒 Generated cas.ml\n";
+  Printf.printf "🔒 Generated certificates.ml\n";
   close_out oc
 
 let () =

@@ -3,7 +3,7 @@
 
 (library
  (public_name castore)
- (modules ca_store pem cas)
+ (modules ca_store pem certificates)
  (name ca_store))
 
 (executable
