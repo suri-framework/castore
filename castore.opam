@@ -9,6 +9,8 @@ homepage: "https://github.com/leostera/castore"
 bug-reports: "https://github.com/leostera/castore/issues"
 depends: [
   "ocaml" {>= "5.1"}
+  "mdx" {with-test & >= "2.3.1"}
+  "x509" {with-doc & >= "0.16.5"}
   "dune" {>= "3.11"}
   "odoc" {with-doc}
 ]

@@ -16,5 +16,9 @@
 (package
  (name castore)
  (synopsis "A portable CA Store with a global .crt and .pem files")
- (depends (ocaml (>="5.1")) dune)
+ (depends 
+   (ocaml (>="5.1")) 
+   (mdx (and :with-test (>= "2.3.1")))
+   (x509 (and :with-doc (>= "0.16.5")))
+   dune)
  (tags (https tls cert crt pem ca "ca store")))
