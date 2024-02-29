@@ -48,3 +48,6 @@ jobs:
         
         git tag "$new_version"
         git push origin "$new_version"
+        gh release create "$new_version" --generate-notes
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
