@@ -1,0 +1,53 @@
+name: Update Certificate
+
+on: 
+  workflow_dispatch:
+  schedule:
+    # Run every Wednesday at midnight
+    - cron: 0 0 * * WED
+
+jobs:
+  update-cert:
+    runs-on: ubuntu-latest
+    env: 
+      ocaml-compiler: "5.1"
+    steps:
+    - name: Checkout tree
+      uses: actions/checkout@v4
+
+    - name: Download certificate
+      shell: bash
+      run: ./download_pem.sh
+
+    - name: Check for changes
+      id: check_changes
+      continue-on-error: true
+      run: |
+        if git diff --quiet main~1 cacert.pem; then
+          echo "No changes to cacert.pem. Skipping build."
+          exit 1
+        fi
+
+    - name: Set-up OCaml
+      uses: ocaml/setup-ocaml@v2
+      if: steps.check_changes.outcome == 'success'
+      with:
+        ocaml-compiler: ${{ env.ocaml-compiler }}
+    - run: |
+        opam install castore x509 ca-certs cstruct mdx ocamlformat
+        opam exec -- dune build
+        ./_build/default/regen.exe
+        opam exec -- dune fmt || true
+
+    - name: Bump version and create release
+      if: steps.check_changes.outcome == 'success'
+      run: |
+        current_version=$(git describe --tags --abbrev=0)
+        IFS='.' read -r major minor patch <<< "$current_version"
+        new_version="$major.$minor.$((patch + 1))"
+        
+        git tag "$new_version"
+        git push origin "$new_version"
+        gh release create "$new_version" --generate-notes
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
