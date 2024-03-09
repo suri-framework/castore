@@ -15,16 +15,16 @@ jobs:
     - name: Checkout tree
       uses: actions/checkout@v4
 
-    - name: Download certificate
-      shell: bash
-      run: ./download_pem.sh
-
-    - name: Check for changes
+    - name: Download and compare latest certificate
       id: check_changes
       continue-on-error: true
+      shell: bash
       run: |
-        if git diff --quiet main~1 cacert.pem; then
-          echo "No changes to cacert.pem. Skipping build."
+        current=$(cat cacert.pem | sha256sum)
+        ./download_pem.sh
+        latest=$(cat cacert.pem | sha256sum)
+        if [ "$current" = "$latest" ]; then
+          echo "No changes to cacert.pem. Skipping build!"
           exit 1
         fi
 
@@ -33,21 +33,28 @@ jobs:
       if: steps.check_changes.outcome == 'success'
       with:
         ocaml-compiler: ${{ env.ocaml-compiler }}
-    - run: |
-        opam install castore x509 ca-certs cstruct mdx ocamlformat
+
+    - name: Install OCaml deps
+      if: steps.check_changes.outcome == 'success'
+      run: |
+        opam install castore x509 ca-certs cstruct mdx ocamlformat dune-release
         opam exec -- dune build
         ./_build/default/regen.exe
         opam exec -- dune fmt || true
 
     - name: Bump version and create release
       if: steps.check_changes.outcome == 'success'
+      shell: bash
       run: |
-        current_version=$(git describe --tags --abbrev=0)
+        git pull --tags --force
+        current_version=$(git describe --tags $(git rev-list --tags --max-count=1))
         IFS='.' read -r major minor patch <<< "$current_version"
         new_version="$major.$minor.$((patch + 1))"
-        
-        git tag "$new_version"
-        git push origin "$new_version"
-        gh release create "$new_version" --generate-notes
+
+        opam exec -- dune-release tag "$new_version"
+        opam exec -- dune-release distrib
+        opam exec -- dune-release publish distrib -y
+        opam exec -- dune-release opam pkg
+        opam exec -- dune-release opam submit
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
