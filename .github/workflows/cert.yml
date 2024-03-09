@@ -20,9 +20,9 @@ jobs:
       continue-on-error: true
       shell: bash
       run: |
-        current=$(cat cacert.pem | base64)
+        current=$(cat cacert.pem | sha256sum)
         ./download_pem.sh
-        latest=$(cat cacert.pem | base64)
+        latest=$(cat cacert.pem | sha256sum)
         if [ "$current" = "$latest" ]; then
           echo "No changes to cacert.pem. Skipping build!"
           exit 1
