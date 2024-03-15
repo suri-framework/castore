@@ -19,6 +19,6 @@
  (depends 
    (ocaml (>="5.1")) 
    (mdx (and :with-test (>= "2.3.1")))
-   (x509 (and :with-doc (>= "0.16.5")))
+   (x509 (>= "0.16.5"))
    dune)
  (tags (https tls cert crt pem ca "ca store")))
